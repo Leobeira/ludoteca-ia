@@ -63,7 +63,10 @@ function Home() {
   }, []);
 
   const jogosFiltrados = jogos.filter((jogo) =>
-    jogo.toLowerCase().includes(busca.toLowerCase())
+  jogo
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .includes(busca.toLowerCase())
   );
 
   return (

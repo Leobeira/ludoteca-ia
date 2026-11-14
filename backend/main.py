@@ -58,6 +58,22 @@ def listar_manuais(nome_jogo):
     return manuais
 
 @app.get("/pdf/{nome_jogo}/{nome_pdf}")
+@app.get("/manual/{nome_jogo}/{nome_json}")
+def obter_manual_json(nome_jogo: str, nome_json: str):
+    caminho_json = os.path.join(
+        PASTA_MANUAIS,
+        "textos",
+        nome_jogo,
+        nome_json
+    )
+
+    if os.path.exists(caminho_json):
+        import json
+        with open(caminho_json, "r", encoding="utf-8") as f:
+            dados = json.load(f)
+        return dados
+    else:
+        return {"erro": "Manual JSON não encontrado."}
 def abrir_pdf(nome_jogo: str, nome_pdf: str):
 
     caminho_pdf = os.path.join(

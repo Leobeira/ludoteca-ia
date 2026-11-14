@@ -31,20 +31,20 @@ function App() {
       {/* Camada flutuante de iluminação da tocha */}
       <div className="luz-tocha" />
 
-      <BrowserRouter basename="/ludoteca-ia">
-  <ScrollToTop/>
-  
-  <Routes>
-    {/* Rota inicial com a tela de boas-vindas, background 'povo.jpg' e início da música */}
-    <Route path="/" element={<Welcome />} />
+      <BrowserRouter>
+        <ScrollToTop/>
+        
+        <Routes>
+          {/* Rota inicial com a tela de boas-vindas, background 'povo.jpg' e início da música */}
+          <Route path="/" element={<Welcome />} />
 
-    {/* Rota da página principal com os jogos */}
-    <Route path="/home" element={<Home />} />
+          {/* Rota da página principal com os jogos */}
+          <Route path="/home" element={<Home />} />
 
-    {/* Rota da biblioteca/manuais do jogo */}
-    <Route path="/jogo/:nomeJogo" element={<Biblioteca />} />
-  </Routes>
-</BrowserRouter>
+          {/* Rota da biblioteca/manuais do jogo */}
+          <Route path="/jogo/:nomeJogo" element={<Biblioteca />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }

@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import ManualBusca from "../ManualBusca"; // Importa o seu componente de busca
 import "../App.css";
 
 function Biblioteca() {
   const { nomeJogo } = useParams();
   const [manuais, setManuais] = useState([]);
+  const [dadosManualJson, setDadosManualJson] = useState(null); // Guarda o JSON para a busca
   const navigate = useNavigate();
   
   const audioObjRef = useRef(null);
@@ -13,15 +15,9 @@ function Biblioteca() {
 
   // Função mágica para deixar o nome do manual bonito e legível
   const formatarNomeManual = (nomeArquivo) => {
-    // Remove o final ".pdf" ou ".PDF"
     let nomeLimpo = nomeArquivo.replace(/\.pdf$/i, "");
-    
-    // Substitui underscores e hífens por espaços
     nomeLimpo = nomeLimpo.replace(/[_]/g, " ");
-    
-    // Deixa a primeira letra de cada palavra em maiúscula (opcional, fica muito elegante)
     nomeLimpo = nomeLimpo.replace(/\b\w/g, (l) => l.toUpperCase());
-    
     return nomeLimpo;
   };
 
@@ -43,17 +39,34 @@ function Biblioteca() {
   };
 
   useEffect(() => {
+    // 1. Busca os manuais do jogo na API
     axios
       .get(`http://127.0.0.1:8000/jogos/${nomeJogo}`)
       .then((response) => {
-        setManuais(response.data);
-      });
+        const listaManuais = response.data;
+        setManuais(listaManuais);
+
+        // Se houver pelo menos um manual, tenta carregar o seu JSON correspondente para a busca
+        if (listaManuais.length > 0) {
+          const primeiroManualPdf = listaManuais[0];
+          const nomeJson = primeiroManualPdf.replace(/\.pdf$/i, ".json");
+
+          axios
+            .get(`http://127.0.0.1:8000/manual/${nomeJogo}/${nomeJson}`)
+            .then((resJson) => {
+              setDadosManualJson(resJson.data);
+            })
+            .catch(() => {
+              console.log("JSON do manual ainda não gerado para este jogo.");
+            });
+        }
+      })
+      .catch((err) => console.log("Erro ao buscar manuais do jogo:", err));
 
     const nomeMinusculo = nomeJogo.toLowerCase();
     document.body.style.backgroundImage = `url('/imagens/jogos/${nomeMinusculo}.jpg')`;
 
     const caminhoAudio = `/musicas/jogos/${nomeMinusculo}.mp3`;
-
     const audio = new Audio(caminhoAudio);
     audio.loop = true;
     audio.volume = 0.15;
@@ -95,21 +108,21 @@ function Biblioteca() {
       </div>
 
       <h1 className="titulo-jogo"> 
-        ⚔️ {nomeJogo.replaceAll("_", " ")} 🛡️</h1>
+        ⚔️ {nomeJogo.replaceAll("_", " ")} 🛡️
+      </h1>
 
       <button 
         onClick={() => navigate("/home")}
         style={{ 
           position: "absolute",  
-          top: "25px",           
+          top: "25px",          
           left: "30px",          
           fontWeight: "bold",
           zIndex: 100,
-          /* Cores e transparência aqui: */
-          backgroundColor: "rgba(74, 40, 16, 0.4)", /* Marrom da taverna com 40% de opacidade */
-          backdropFilter: "blur(4px)",             /* Efeito de vidro fosco por trás */
+          backgroundColor: "rgba(74, 40, 16, 0.4)", 
+          backdropFilter: "blur(4px)",            
           color: "#fff",
-          border: "2px solid rgba(212, 175, 55, 0.7)", /* Borda dourada translúcida */
+          border: "2px solid rgba(212, 175, 55, 0.7)", 
           borderRadius: "10px",
           padding: "10px 18px",
           cursor: "pointer",
@@ -117,7 +130,7 @@ function Biblioteca() {
         }}
         onMouseOver={(e) => {
           e.target.style.transform = "scale(1.05)";
-          e.target.style.backgroundColor = "rgba(74, 40, 16, 0.7)"; /* Fica um pouco mais forte ao passar o mouse */
+          e.target.style.backgroundColor = "rgba(74, 40, 16, 0.7)"; 
         }}
         onMouseOut={(e) => {
           e.target.style.transform = "scale(1)";
@@ -128,8 +141,17 @@ function Biblioteca() {
       </button>
 
       <br />
+
+      {/* Renderiza o componente de busca caso o JSON tenha sido carregado com sucesso */}
+      {dadosManualJson && (
+        <div style={{ margin: "20px auto", maxWidth: "600px" }}>
+          <ManualBusca manual={dadosManualJson} />
+        </div>
+      )}
+
       <br />
 
+      <h3 style={{ color: "#ffe894", marginBottom: "15px" }}>Manuais em PDF:</h3>
       <div className="lista-jogos">
         {manuais.map((manual) => (
           <div className="card-manual" key={manual}>
