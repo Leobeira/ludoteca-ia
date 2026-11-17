@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import api, { API_URL } from "./api"; // Importa a URL base inteligente
 import { useParams, useNavigate } from "react-router-dom";
 import ManualBusca from "../ManualBusca";
 import "../App.css";
@@ -40,32 +40,24 @@ function Biblioteca() {
   useEffect(() => {
     setDadosManualJson(null);
 
-    // 1. Busca os manuais do jogo na API
-    axios
-      .get(`http://127.0.0.1:8000/jogos/${nomeJogo}`)
+    // 1. Busca os manuais do jogo usando a API centralizada
+    api.get(`/jogos/${nomeJogo}`)
       .then((response) => {
         const listaManuais = response.data;
         setManuais(listaManuais);
 
         if (listaManuais.length > 0) {
-          // Procura pelo JSON principal que tem o mesmo nome do jogo (ex: Ankh.json)
           const nomeJsonPrincipal = `${nomeJogo}.json`;
 
-          console.log(`Buscando JSON principal: /manual/${nomeJogo}/${nomeJsonPrincipal}`);
-
-          axios
-            .get(`http://127.0.0.1:8000/manual/${nomeJogo}/${nomeJsonPrincipal}`)
+          api.get(`/manual/${nomeJogo}/${nomeJsonPrincipal}`)
             .then((resJson) => {
-              console.log("JSON carregado com sucesso!", resJson.data);
               setDadosManualJson(resJson.data);
             })
             .catch(() => {
-              // Fallback caso o nome principal varie: tenta o primeiro PDF da lista convertido em .json
               const primeiroPdf = listaManuais[0];
               const nomeJsonAlternativo = primeiroPdf.replace(/\.pdf$/i, ".json");
 
-              axios
-                .get(`http://127.0.0.1:8000/manual/${nomeJogo}/${nomeJsonAlternativo}`)
+              api.get(`/manual/${nomeJogo}/${nomeJsonAlternativo}`)
                 .then((resAlt) => setDadosManualJson(resAlt.data))
                 .catch(() => {
                   console.log("Nenhum JSON encontrado para este jogo.");
@@ -155,7 +147,6 @@ function Biblioteca() {
 
       <br />
 
-      {/* Renderiza o buscador inteligente apenas se o JSON carregado não for um objeto de erro */}
       {dadosManualJson && !dadosManualJson.erro && (
         <ManualBusca manual={dadosManualJson} />
       )}
@@ -166,8 +157,9 @@ function Biblioteca() {
       <div className="lista-jogos">
         {manuais.map((manual) => (
           <div className="card-manual" key={manual}>
+            {/* Usa a variável API_URL para abrir o PDF corretamente tanto no PC quanto no Render */}
             <a
-              href={`http://127.0.0.1:8000/pdf/${nomeJogo}/${manual}`}
+              href={`${API_URL}/pdf/${nomeJogo}/${manual}`}
               target="_blank"
               rel="noreferrer"
             >
