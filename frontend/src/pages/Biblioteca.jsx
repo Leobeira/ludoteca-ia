@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import api, { API_URL } from "./api"; // Importa a URL base inteligente
+import api, { API_URL } from "../api";
 import { useParams, useNavigate } from "react-router-dom";
 import ManualBusca from "../ManualBusca";
 import "../App.css";
