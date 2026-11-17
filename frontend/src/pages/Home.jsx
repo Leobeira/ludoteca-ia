@@ -11,6 +11,9 @@ function Home() {
   const audioRef = useRef(null);
   const [estaTocando, setEstaTocando] = useState(false);
 
+  // Lista padrão para quando estiver na Vercel (onde não há backend Python)
+  const JOGOS_VERCEL = ["Alchemist"];
+
   const alternarMusica = () => {
     if (!audioRef.current) return;
 
@@ -31,18 +34,30 @@ function Home() {
   };
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/jogos")
-      .then((response) => {
-        setJogos(response.data);
-      });
+    // Verifica se estamos rodando na Vercel ou no computador local
+    const isVercel = window.location.hostname.includes("vercel.app");
+
+    if (isVercel) {
+      // Se estiver na Vercel, usa a lista fixa diretamente
+      setJogos(JOGOS_VERCEL);
+    } else {
+      // Se estiver no computador, busca dinamicamente do FastAPI local
+      axios
+        .get("http://127.0.0.1:8000/jogos")
+        .then((response) => {
+          setJogos(response.data);
+        })
+        .catch((error) => {
+          console.log("Erro ao buscar jogos do backend local:", error);
+          setJogos(JOGOS_VERCEL);
+        });
+    }
 
     document.body.style.backgroundImage = "url('/imagens/povo.jpg')";
 
     if (audioRef.current) {
-      audioRef.current.volume = 0.2; // Mantém o seu volume ajustado
+      audioRef.current.volume = 0.2;
 
-      // Verifica se o usuário já havia desligado a música antes
       const musicaLigada = localStorage.getItem("ludoteca_musica_ligada");
 
       if (musicaLigada === "false") {
@@ -55,7 +70,7 @@ function Home() {
             localStorage.setItem("ludoteca_musica_ligada", "true");
           })
           .catch((error) => {
-            console.log("Autoplay bloqueado pelo navegador. O usuário precisa interagir com a página primeiro.", error);
+            console.log("Autoplay bloqueado pelo navegador.", error);
             setEstaTocando(false);
           });
       }
@@ -63,15 +78,14 @@ function Home() {
   }, []);
 
   const jogosFiltrados = jogos.filter((jogo) =>
-  jogo
-    .replaceAll("_", " ")
-    .toLowerCase()
-    .includes(busca.toLowerCase())
+    jogo
+      .replaceAll("_", " ")
+      .toLowerCase()
+      .includes(busca.toLowerCase())
   );
 
   return (
     <div className="container">
-      {/* Botão de música discreto no canto superior direito contendo ícone dinâmico */}
       <div className="controle-musica">
         <button 
           className="botao-musica-discreto" 
@@ -90,8 +104,7 @@ function Home() {
       <h1 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
         <span 
           onClick={() => navigate("/")} 
-          /* Removido o cursor: pointer inline para assumir a tocha do CSS global */
-          style={{ transition: "transform 0.2s" }} 
+          style={{ transition: "transform 0.2s", cursor: "pointer" }} 
           title="Voltar para a página inicial"
           onMouseOver={(e) => e.target.style.transform = "scale(1.2)"}
           onMouseOut={(e) => e.target.style.transform = "scale(1)"}
@@ -100,7 +113,7 @@ function Home() {
         </span> 
         <span 
           onClick={() => navigate("/")} 
-          /* Removido o cursor: pointer inline aqui também */
+          style={{ cursor: "pointer" }}
           title="Voltar para a página inicial"
         >
           Ludoteca IA
