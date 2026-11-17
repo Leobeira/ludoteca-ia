@@ -1,9 +1,78 @@
 import { useState } from "react";
 
+// Dicionário de termos comuns de jogos de tabuleiro (PT <-> EN)
+const DICIONARIO_BG = {
+  setup: ["setup", "preparação", "preparacao", "início", "inicio"],
+  preparação: ["setup", "preparation", "components"],
+  preparacao: ["setup", "preparation", "components"],
+  componentes: ["components", "contents", "pieces"],
+  cartas: ["cards", "card", "deck", "hand"],
+  carta: ["card", "cards"],
+  mão: ["hand", "cards"],
+  mao: ["hand", "cards"],
+  turno: ["turn", "round", "phase", "action"],
+  turnos: ["turns", "rounds"],
+  rodada: ["round", "turn", "age", "era"],
+  rodadas: ["rounds", "ages", "eras"],
+  ações: ["actions", "action", "turn"],
+  acoes: ["actions", "action", "turn"],
+  ação: ["action", "actions"],
+  acao: ["action", "actions"],
+  pontos: ["points", "score", "scoring", "victory", "glory"],
+  pontuação: ["scoring", "score", "points", "victory", "end of game"],
+  pontuacao: ["scoring", "score", "points", "victory", "end of game"],
+  vitória: ["victory", "win", "winner", "points"],
+  vitoria: ["victory", "win", "winner", "points"],
+  vencedor: ["winner", "win", "victory"],
+  fim: ["end", "game end", "final", "scoring"],
+  tabuleiro: ["board", "map", "area", "region"],
+  região: ["region", "area", "territory", "kingdom"],
+  regiao: ["region", "area", "territory", "kingdom"],
+  regiões: ["regions", "areas", "territories", "kingdoms"],
+  regioes: ["regions", "areas", "territories", "kingdoms"],
+  marcador: ["marker", "token", "piece", "control"],
+  marcadores: ["markers", "tokens", "pieces"],
+  fichas: ["tokens", "markers", "chips"],
+  jogadores: ["players", "player"],
+};
+
+const normalizar = (str) =>
+  str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
 export default function ManualBusca({ manual }) {
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState([]);
   const [secaoAtiva, setSecaoAtiva] = useState(null);
+
+  const expandirTermos = (termoBruto) => {
+    const limpo = normalizar(termoBruto.trim());
+    const termos = new Set([limpo, termoBruto.trim().toLowerCase()]);
+
+    if (DICIONARIO_BG[limpo]) {
+      DICIONARIO_BG[limpo].forEach((t) => termos.add(normalizar(t)));
+    }
+    return Array.from(termos);
+  };
+
+  const extrairTextosDoJson = (obj, prefixo = "") => {
+    let lista = [];
+    if (typeof obj === "string") {
+      lista.push({ secao: prefixo || "Regra", texto: obj });
+    } else if (Array.isArray(obj)) {
+      obj.forEach((item, i) => {
+        lista = lista.concat(extrairTextosDoJson(item, `${prefixo} (${i + 1})`));
+      });
+    } else if (obj && typeof obj === "object") {
+      Object.entries(obj).forEach(([chave, valor]) => {
+        const novoPrefixo = prefixo ? `${prefixo} > ${chave}` : chave;
+        lista = lista.concat(extrairTextosDoJson(valor, novoPrefixo));
+      });
+    }
+    return lista;
+  };
 
   const pesquisar = (termoDigitado) => {
     setBusca(termoDigitado);
@@ -13,20 +82,17 @@ export default function ManualBusca({ manual }) {
       return;
     }
 
-    const termo = termoDigitado.toLowerCase().trim();
+    const termosBusca = expandirTermos(termoDigitado);
     const encontrados = [];
+    const secoesExtraidas = extrairTextosDoJson(manual);
 
-    Object.entries(manual).forEach(([secao, texto]) => {
-      if (typeof texto !== "string") return;
-
+    secoesExtraidas.forEach(({ secao, texto }) => {
       const tituloSecao = secao
         .replace(/_/g, " ")
         .replace(/\b\w/g, (l) => l.toUpperCase());
 
-      // Divide textos muito longos em blocos menores (a cada ~600 caracteres respeitando fim de frase)
-      // para que cada regra específica apareça como um resultado separado
       const blocos = texto.match(/[^.!?]+[.!?]+(?:\s|$)|.{1,600}/g) || [texto];
-      
+
       let blocoAtual = "";
       const paragrafosAgrupados = [];
 
@@ -41,11 +107,14 @@ export default function ManualBusca({ manual }) {
       if (blocoAtual.trim()) paragrafosAgrupados.push(blocoAtual.trim());
 
       paragrafosAgrupados.forEach((bloco, idx) => {
-        if (
-          bloco.toLowerCase().includes(termo) ||
-          (idx === 0 && secao.toLowerCase().includes(termo))
-        ) {
-          // Pega as primeiras palavras do bloco para servir de subtítulo contextual
+        const blocoNorm = normalizar(bloco);
+        const secaoNorm = normalizar(secao);
+
+        const deuMatch = termosBusca.some(
+          (t) => blocoNorm.includes(t) || (idx === 0 && secaoNorm.includes(t))
+        );
+
+        if (deuMatch) {
           const palavras = bloco.split(/\s+/);
           const resumoTitulo = palavras.slice(0, 6).join(" ") + "...";
 
@@ -54,7 +123,7 @@ export default function ManualBusca({ manual }) {
             titulo: `${tituloSecao} — ${resumoTitulo}`,
             textoCompleto: bloco,
             trecho: bloco.substring(0, 180) + "...",
-            termoBuscado: termoDigitado.trim(),
+            termosBuscados: termosBusca,
           });
         }
       });
@@ -63,12 +132,15 @@ export default function ManualBusca({ manual }) {
     setResultados(encontrados);
   };
 
-  // Função para destacar o termo pesquisado em amarelo dentro do texto
-  const destacarTexto = (texto, termo) => {
-    if (!termo) return texto;
-    const partes = texto.split(new RegExp(`(${termo.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"));
-    return partes.map((parte, i) =>
-      parte.toLowerCase() === termo.toLowerCase() ? (
+  const destacarTexto = (texto, termos) => {
+    if (!termos || termos.length === 0) return texto;
+    const escapar = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(${termos.map(escapar).join("|")})`, "gi");
+    const partes = texto.split(regex);
+
+    return partes.map((parte, i) => {
+      const ehMatch = termos.some((t) => normalizar(parte) === normalizar(t));
+      return ehMatch ? (
         <mark
           key={i}
           style={{
@@ -83,8 +155,8 @@ export default function ManualBusca({ manual }) {
         </mark>
       ) : (
         parte
-      )
-    );
+      );
+    });
   };
 
   return (
@@ -93,15 +165,17 @@ export default function ManualBusca({ manual }) {
         width: "100%",
         maxWidth: "600px",
         margin: "0 auto 25px auto",
-        textAlign: "left",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center", // <--- Centraliza perfeitamente o input no meio
         fontFamily: "inherit",
         position: "relative",
       }}
     >
-      {/* Campo de Pesquisa */}
+      {/* Mantemos a largura de 100% no input para ele ocupar o espaço do container centralizado */}
       <input
         type="text"
-        placeholder="🔍 Pesquisar regras, setup, componentes..."
+        placeholder="🔍 Pesquisar regras, setup, cards, pontos..."
         value={busca}
         onChange={(e) => pesquisar(e.target.value)}
         style={{
@@ -116,13 +190,12 @@ export default function ManualBusca({ manual }) {
           outline: "none",
           boxShadow: "0 8px 16px rgba(0,0,0,0.4)",
           boxSizing: "border-box",
+          textAlign: "left", // Mantém o texto digitado alinhado à esquerda
           transition: "all 0.3s ease",
         }}
         onFocus={(e) => (e.target.style.borderColor = "#ffe894")}
         onBlur={(e) => (e.target.style.borderColor = "rgba(212, 175, 55, 0.7)")}
       />
-
-      {/* Lista de Resultados da Busca */}
       {resultados.length > 0 && (
         <div
           style={{
@@ -185,14 +258,13 @@ export default function ManualBusca({ manual }) {
                   lineHeight: "1.4",
                 }}
               >
-                {destacarTexto(item.trecho, item.termoBuscado)}
+                {destacarTexto(item.trecho, item.termosBuscados)}
               </p>
             </div>
           ))}
         </div>
       )}
 
-      {/* POP-UP / MODAL */}
       {secaoAtiva && (
         <div
           style={{
@@ -226,7 +298,6 @@ export default function ManualBusca({ manual }) {
               boxSizing: "border-box",
             }}
           >
-            {/* Cabeçalho da Modal */}
             <div
               style={{
                 display: "flex",
@@ -261,7 +332,6 @@ export default function ManualBusca({ manual }) {
               </button>
             </div>
 
-            {/* Conteúdo com destaque */}
             <div
               style={{
                 overflowY: "auto",
@@ -273,10 +343,9 @@ export default function ManualBusca({ manual }) {
                 whiteSpace: "pre-line",
               }}
             >
-              {destacarTexto(secaoAtiva.textoCompleto, secaoAtiva.termoBuscado)}
+              {destacarTexto(secaoAtiva.textoCompleto, secaoAtiva.termosBuscados)}
             </div>
 
-            {/* Rodapé da Modal */}
             <div style={{ marginTop: "20px", textAlign: "right" }}>
               <button
                 onClick={() => setSecaoAtiva(null)}

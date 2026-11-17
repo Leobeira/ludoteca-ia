@@ -22,18 +22,12 @@ function Welcome() {
   return (
     <div 
       style={{
-        backgroundImage: "url('/imagens/povo.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundAttachment: "fixed",
+        backgroundColor: "#000",
         width: "100vw",
         height: "100vh",
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
+        justifyContent: "center",
         alignItems: "center",
-        paddingTop: "80px",
         margin: 0,
         position: "fixed",
         top: 0,
@@ -43,19 +37,22 @@ function Welcome() {
     >
       <style>
         {`
-          /* Container que prende os efeitos proporcionalmente ao centro da tela */
-          .taverna-cena {
+          /* Moldura proporcional fixa que prende o fundo e os fogos juntos */
+          .taverna-moldura {
             position: relative;
-            width: 100%;
-            max-width: 1400px;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
+            max-width: 177.78vh; /* Mantém a proporção exata 16:9 de TVs e monitores */
+            max-height: 56.25vw;
+            background-image: url('/imagens/povo.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex;
             justify-content: center;
             align-items: center;
-            pointer-events: none;
           }
 
-          /* Voo suave e expansivo por toda a taverna */
           @keyframes vooFadaCompleto {
             0% { transform: translate(0px, 0px) scale(0.8); opacity: 0.3; }
             15% { transform: translate(-250px, -30px) scale(1.3); opacity: 1; }  
@@ -67,13 +64,11 @@ function Welcome() {
             100% { transform: translate(0px, 0px) scale(0.8); opacity: 0.3; }
           }
 
-          /* Efeito de brilho pulsante da fada */
           @keyframes brilhoFada {
             0%, 100% { box-shadow: 0 0 8px 3px #d4af37, 0 0 15px 5px #ffffff; }
             50% { box-shadow: 0 0 22px 9px #ffdf73, 0 0 35px 15px #ffffff; }
           }
 
-          /* Efeito da lareira acesa com oscilação de luz ao fundo */
           @keyframes lareiraChama {
             0%, 100% { 
               opacity: 0.55; 
@@ -92,10 +87,26 @@ function Welcome() {
             }
           }
 
-          /* Brilho intermitente das velas nas mesas */
           @keyframes brilhoVela {
             0%, 100% { opacity: 0.6; transform: scale(1); filter: drop-shadow(0 0 4px #ffaa00); }
             50% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 10px #ffcc00); }
+          }
+
+          @keyframes surgirDoFundo {
+            0% {
+              transform: scale(0.1) translateY(50px);
+              opacity: 0;
+              filter: blur(8px);
+            }
+            50% {
+              opacity: 0.5;
+              filter: blur(3px);
+            }
+            100% {
+              transform: scale(1) translateY(0);
+              opacity: 1;
+              filter: blur(0);
+            }
           }
 
           .fada-magica {
@@ -108,93 +119,95 @@ function Welcome() {
             top: 50%;
             left: 50%;
             z-index: 2;
+            pointer-events: none;
           }
 
+          /* Posicionamento fixo em relação à moldura proporcional */
           .lareira-fundo {
             position: absolute;
-            width: 18px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background: radial-gradient(circle, rgba(255, 159, 50, 0.74) 0%, rgba(255, 60, 0, 0.32) 60%, transparent 100%);
             border-radius: 60%;
-            top: 34.5%;
-            left: 48.5%;
+            top: 44.5%;
+            left: 47.5%;
             transform: translate(-50%, -50%);
             animation: lareiraChama 1.8s infinite ease-in-out;
             z-index: 1;
+            pointer-events: none;
           }
 
           .fogo-vela-1, .fogo-vela-2 {
             position: absolute;
-            width: 7px;
-            height: 12px;
+            width: 5px;
+            height: 10px;
             background: radial-gradient(circle, #fff700d3 0%, #ff5500c3 100%);
             border-radius: 50% 50% 20% 20%;
             animation: brilhoVela 1.5s infinite alternate ease-in-out;
             z-index: 2;
+            pointer-events: none;
           }
 
-          /* Posições relativas ajustadas ao centro do container */
           .fogo-vela-1 {
-            top: 55.3%;
+            top: 66.2%;
             left: 43.4%;
           }
 
           .fogo-vela-2 {
-            top: 34.8%;
-            left: 0.3%;
+            top: 21%;
+            left: 86.2%;
             animation-delay: 0.7s;
           }
-    
+
+          .botao-surgir {
+            animation: surgirDoFundo 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+          }
         `}
       </style>
 
-      {/* Caixa centralizadora que acompanha o redimensionamento */}
-      <div className="taverna-cena">
-        {/* Luz da lareira oscilando ao fundo */}
+      {/* Moldura que segura a imagem de fundo e os efeitos no mesmo bloco */}
+      <div className="taverna-moldura">
         <div className="lareira-fundo"></div>
-
-        {/* Fada voadora mágica */}
         <div className="fada-magica"></div>
-
-        {/* Velas nas mesas */}
         <div className="fogo-vela-1"></div>
         <div className="fogo-vela-2"></div>
+
+        <button 
+          onClick={entrarNoSite}
+          className="botao-surgir"
+          style={{
+            position: "absolute",
+            top: "80px", // Mude aqui se quiser mover o botão mais para cima ou para baixo
+            padding: "18px 38px",
+            fontSize: "24px",
+            fontWeight: "bold",
+            fontFamily: "inherit",
+            backgroundColor: "rgba(74, 40, 16, 0.4)", 
+            backdropFilter: "blur(4px)",
+            color: "#fff",
+            border: "2px solid rgba(212, 175, 55, 0.7)",
+            borderRadius: "14px",
+            cursor: "pointer",
+            boxShadow: "0px 4px 15px rgba(0,0,0,0.5)",
+            transition: "transform 0.5s, background-color 0.5s",
+            zIndex: 10
+          }}
+          onMouseOver={(e) => {
+            e.target.style.transform = "scale(1.05)";
+            e.target.style.backgroundColor = "rgba(74, 40, 16, 0.6)";
+          }}
+          onMouseOut={(e) => {
+            e.target.style.transform = "scale(1)";
+            e.target.style.backgroundColor = "rgba(74, 40, 16, 0.4)";
+          }}
+        >
+          🎲 Ludoteca IA
+        </button>
       </div>
 
       <audio ref={audioRef} loop>
         <source src="/musicas/tavern.mp3" type="audio/mpeg" />
       </audio>
-
-      <button 
-        onClick={entrarNoSite}
-        style={{
-          position: "absolute",
-          top: "80px",
-          padding: "18px 38px",
-          fontSize: "24px",
-          fontWeight: "bold",
-          fontFamily: "inherit",
-          backgroundColor: "rgba(74, 40, 16, 0.4)", 
-          backdropFilter: "blur(4px)",
-          color: "#fff",
-          border: "2px solid rgba(212, 175, 55, 0.7)",
-          borderRadius: "14px",
-          cursor: "pointer",
-          boxShadow: "0px 4px 15px rgba(0,0,0,0.5)",
-          transition: "transform 0.2s, background-color 0.2s",
-          zIndex: 10
-        }}
-        onMouseOver={(e) => {
-          e.target.style.transform = "scale(1.05)";
-          e.target.style.backgroundColor = "rgba(74, 40, 16, 0.6)";
-        }}
-        onMouseOut={(e) => {
-          e.target.style.transform = "scale(1)";
-          e.target.style.backgroundColor = "rgba(74, 40, 16, 0.4)";
-        }}
-      >
-        🎲 Ludoteca IA
-      </button>
     </div>
   );
 }

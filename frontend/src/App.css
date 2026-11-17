@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&display=swap');
 
+/* ==========================================
+   CONFIGURAÇÕES GLOBAIS E CURSOR DE TOCHA
+   ========================================== */
 body {
   margin: 0;
   padding: 0;
@@ -9,48 +12,67 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   font-family: Arial, Helvetica, sans-serif;
-  /* Cursor da tocha inclinada com ponto de clique na ponta (4px 4px) para toda a página */
   cursor: url('/imagens/tocha1.png') 4 4, auto;
+}
+
+/* Força a tocha personalizada em todos os elementos interativos */
+button, 
+a, 
+input, 
+[role="button"],
+span[onClick],
+div[onClick] {
+  cursor: url('/imagens/tocha1.png') 4 4, pointer !important;
 }
 
 .container {
   min-height: 100vh;
   background: rgba(0, 0, 0, 0.55);
   color: white;
-  padding: 30px;
-  position: relative; /* Necessário para posicionar o botão flutuante em relação à tela */
+  padding: 20px;
+  position: relative;
+  box-sizing: border-box;
 }
 
 .container p {
   text-align: center;
+  font-size: 1rem;
+  padding: 0 10px;
 }
 
 input {
-  width: 300px;
+  width: 100%;
+  max-width: 350px;
   padding: 12px;
   border-radius: 10px;
   border: none;
   margin-bottom: 20px;
-  cursor: url('/imagens/tocha1.png') 4 4, auto;
+  box-sizing: border-box;
 }
 
 .lista-jogos {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 25px;
+  gap: 20px;
+  padding: 10px 0;
 }
 
+/* ==========================================
+   CARDS DE JOGOS E MANUAIS
+   ========================================== */
 .card {
   background: rgba(255,255,255,0.10);
   backdrop-filter: blur(5px);
   border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.15);
   padding: 20px;
-  width: 300px;
+  width: 100%;
+  max-width: 280px;
   text-align: center;
   color: rgba(230, 156, 8, 0.659);
   transition: 0.3s;
+  box-sizing: border-box;
 }
 
 .card:hover {
@@ -60,76 +82,23 @@ input {
 
 .card h3 {
   font-size: 1rem;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
 }
 
-button {
-  background: #916c58c3;
-  color: rgba(247, 244, 244, 0.659);
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
-  /* Força a tocha e evita o salto brusco com uma transição suave */
-  cursor: url('/imagens/tocha1.png') 4 4, pointer !important;
-  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-button:hover {
-  background: #dc861c2f;
-  transform: scale(1.03); /* Zoom bem leve para não tremer o mouse */
-}
-
-/* Força a tocha em links e elementos interativos gerais para sumir com a mãozinha */
-a {
-  cursor: url('/imagens/tocha1.png') 4 4, pointer !important;
-}
-
-/* ==========================================
-   ESTILO DO BOTÃO DE MÚSICA DISCRETO (CANTO SUPERIOR DIREITO)
-   ========================================== */
-.controle-musica {
-  position: absolute;
-  top: 25px;
-  right: 30px;
-  z-index: 100;
-}
-
-.botao-musica-discreto {
-  background: rgba(74, 40, 16, 0.6);
-  backdrop-filter: blur(5px);
-  border: 2px solid rgba(212, 175, 55, 0.7);
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  cursor: url('/imagens/tocha1.png') 4 4, pointer !important;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.botao-musica-discreto:hover {
-  transform: scale(1.08); /* Suave para o botão de música também */
-  background: rgba(74, 40, 16, 0.85);
-}
-
-/* ==========================================
-   ESTILO EXCLUSIVO DOS MANUAIS (NA PÁGINA BIBLIOTECA)
-   ========================================== */
 .card-manual {
   background: rgba(20, 20, 20, 0.8);
   backdrop-filter: blur(8px);
   border-radius: 16px;
   border: 2px solid rgba(212, 175, 55, 0.6);
-  padding: 0; /* Zera o padding do card para passar tudo para o link */
-  width: 320px;
+  padding: 0;
+  width: 100%;
+  max-width: 320px;
   text-align: center;
   transition: all 0.2s ease;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.7);
-  overflow: hidden; /* Garante que o link respeite as bordas arredondadas */
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .card-manual:hover {
@@ -142,53 +111,117 @@ a {
 .card-manual a {
   color: #ffdf73;
   text-decoration: none;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: bold;
   display: block;
   width: 100%;
   height: 100%;
-  padding: 16px 22px; /* O padding agora faz parte da área clicável! */
+  padding: 16px;
   box-sizing: border-box;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
 }
 
-.card-manual a:hover {
-  color: #ffffff;
+/* ==========================================
+   BOTÕES E EFEITO MECÂNICO (CLIQUE)
+   ========================================== */
+button {
+  background: #916c58c3;
+  color: rgba(247, 244, 244, 0.659);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  background: #dc861c2f;
+  transform: scale(1.03);
+}
+
+button:active, 
+.card-manual:active, 
+.card button:active,
+.botao-musica-discreto:active {
+  transform: scale(0.97) !important;
+  box-shadow: inset 0px 3px 5px rgba(0, 0, 0, 0.6) !important;
+  filter: brightness(0.85);
 }
 
 /* ==========================================
-   TÍTULO DA PÁGINA DO JOGO (BIBLIOTECA)
+   CONTROLE DE MÚSICA E TÍTULOS
    ========================================== */
+.controle-musica {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+.botao-musica-discreto {
+  background: rgba(74, 40, 16, 0.6);
+  backdrop-filter: blur(5px);
+  border: 2px solid rgba(212, 175, 55, 0.7);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
 .titulo-jogo {
-  font-family: 'Cinzel', serif; /* Fonte estilo fantasia / RPG */
-  font-size: 2.8rem;
+  font-family: 'Cinzel', serif;
+  font-size: 2.2rem;
   font-weight: 900;
-  color: #ffe894; /* Dourado vivo */
+  color: #ffe894;
   text-align: center;
-  letter-spacing: 2px;
-  margin-top: 70px;  
-  margin-bottom: 30px;
-  
+  letter-spacing: 1px;
+  margin-top: 60px;  
+  margin-bottom: 25px;
+  padding: 0 15px;
   text-shadow: 
     0px 0px 12px rgba(0, 0, 0, 1),
     2px 2px 4px rgba(0, 0, 0, 0.9),
     -2px -2px 4px rgba(0, 0, 0, 0.9);
-    
-  transition: transform 0.3s ease;
 }
 
-.titulo-jogo:hover {
-  transform: scale(1.02);
+/* ==========================================
+   ADAPTAÇÕES PARA CELULARES E TABLETS (RESPONSIVIDADE)
+   ========================================== */
+@media (min-width: 768px) {
+  .container {
+    padding: 30px;
+  }
+  
+  .titulo-jogo {
+    font-size: 2.8rem;
+    letter-spacing: 2px;
+  }
+
+  .card {
+    width: 300px;
+    max-width: none;
+  }
+
+  .card-manual {
+    width: 320px;
+    max-width: none;
+  }
 }
 
-/* Efeito de iluminação que segue a tocha */
+/* ==========================================
+   EFEITO DE ILUMINAÇÃO DA TOCHA
+   ========================================== */
 .luz-tocha {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none; /* Permite clicar nos botões sem o brilho atrapalhar */
+  pointer-events: none;
   z-index: 9999;
   background: radial-gradient(
     circle 180px at var(--mouse-x, 50%) var(--mouse-y, 50%),
@@ -197,26 +230,4 @@ a {
     rgba(0, 0, 0, 0) 100%
   );
   transition: background 0.04s ease-out;
-}
-
-/* Força a tocha personalizada em todos os elementos interativos do site, sem virar mãozinha */
-button, 
-a, 
-input, 
-[role="button"],
-span[onClick],
-div[onClick] {
-  cursor: url('/imagens/tocha1.png') 4 4, auto !important;
-}
-
-/* ==========================================
-   EFEITO DE CLIQUE MECÂNICO (BOTÃO AFUNDANDO)
-   ========================================== */
-button:active, 
-.card-manual:active, 
-.card button:active,
-.botao-musica-discreto:active {
-  transform: scale(0.97) !important; /* Apenas encolhe levemente no centro, sem deslocar para baixo e fugir do mouse */
-  box-shadow: inset 0px 3px 5px rgba(0, 0, 0, 0.6) !important;
-  filter: brightness(0.85);
 }
