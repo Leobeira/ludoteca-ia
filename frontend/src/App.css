@@ -124,11 +124,12 @@ a {
   backdrop-filter: blur(8px);
   border-radius: 16px;
   border: 2px solid rgba(212, 175, 55, 0.6);
-  padding: 16px 22px;
+  padding: 0; /* Zera o padding do card para passar tudo para o link */
   width: 320px;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.7);
+  overflow: hidden; /* Garante que o link respeite as bordas arredondadas */
 }
 
 .card-manual:hover {
@@ -144,6 +145,10 @@ a {
   font-size: 1.1rem;
   font-weight: bold;
   display: block;
+  width: 100%;
+  height: 100%;
+  padding: 16px 22px; /* O padding agora faz parte da área clicável! */
+  box-sizing: border-box;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
 }
 
@@ -202,4 +207,16 @@ input,
 span[onClick],
 div[onClick] {
   cursor: url('/imagens/tocha1.png') 4 4, auto !important;
+}
+
+/* ==========================================
+   EFEITO DE CLIQUE MECÂNICO (BOTÃO AFUNDANDO)
+   ========================================== */
+button:active, 
+.card-manual:active, 
+.card button:active,
+.botao-musica-discreto:active {
+  transform: scale(0.97) !important; /* Apenas encolhe levemente no centro, sem deslocar para baixo e fugir do mouse */
+  box-shadow: inset 0px 3px 5px rgba(0, 0, 0, 0.6) !important;
+  filter: brightness(0.85);
 }

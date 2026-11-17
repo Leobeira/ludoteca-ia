@@ -1,19 +1,18 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import ManualBusca from "../ManualBusca"; // Importa o seu componente de busca
+import ManualBusca from "../ManualBusca";
 import "../App.css";
 
 function Biblioteca() {
   const { nomeJogo } = useParams();
   const [manuais, setManuais] = useState([]);
-  const [dadosManualJson, setDadosManualJson] = useState(null); // Guarda o JSON para a busca
+  const [dadosManualJson, setDadosManualJson] = useState(null);
   const navigate = useNavigate();
   
   const audioObjRef = useRef(null);
   const [estaTocando, setEstaTocando] = useState(false);
 
-  // Função mágica para deixar o nome do manual bonito e legível
   const formatarNomeManual = (nomeArquivo) => {
     let nomeLimpo = nomeArquivo.replace(/\.pdf$/i, "");
     nomeLimpo = nomeLimpo.replace(/[_]/g, " ");
@@ -39,6 +38,8 @@ function Biblioteca() {
   };
 
   useEffect(() => {
+    setDadosManualJson(null);
+
     // 1. Busca os manuais do jogo na API
     axios
       .get(`http://127.0.0.1:8000/jogos/${nomeJogo}`)
@@ -46,18 +47,30 @@ function Biblioteca() {
         const listaManuais = response.data;
         setManuais(listaManuais);
 
-        // Se houver pelo menos um manual, tenta carregar o seu JSON correspondente para a busca
         if (listaManuais.length > 0) {
-          const primeiroManualPdf = listaManuais[0];
-          const nomeJson = primeiroManualPdf.replace(/\.pdf$/i, ".json");
+          // Procura pelo JSON principal que tem o mesmo nome do jogo (ex: Ankh.json)
+          const nomeJsonPrincipal = `${nomeJogo}.json`;
+
+          console.log(`Buscando JSON principal: /manual/${nomeJogo}/${nomeJsonPrincipal}`);
 
           axios
-            .get(`http://127.0.0.1:8000/manual/${nomeJogo}/${nomeJson}`)
+            .get(`http://127.0.0.1:8000/manual/${nomeJogo}/${nomeJsonPrincipal}`)
             .then((resJson) => {
+              console.log("JSON carregado com sucesso!", resJson.data);
               setDadosManualJson(resJson.data);
             })
             .catch(() => {
-              console.log("JSON do manual ainda não gerado para este jogo.");
+              // Fallback caso o nome principal varie: tenta o primeiro PDF da lista convertido em .json
+              const primeiroPdf = listaManuais[0];
+              const nomeJsonAlternativo = primeiroPdf.replace(/\.pdf$/i, ".json");
+
+              axios
+                .get(`http://127.0.0.1:8000/manual/${nomeJogo}/${nomeJsonAlternativo}`)
+                .then((resAlt) => setDadosManualJson(resAlt.data))
+                .catch(() => {
+                  console.log("Nenhum JSON encontrado para este jogo.");
+                  setDadosManualJson(null);
+                });
             });
         }
       })
@@ -142,13 +155,11 @@ function Biblioteca() {
 
       <br />
 
-      {/* Renderiza o componente de busca caso o JSON tenha sido carregado com sucesso */}
-      {dadosManualJson && (
-        <div style={{ margin: "20px auto", maxWidth: "600px" }}>
-          <ManualBusca manual={dadosManualJson} />
-        </div>
+      {/* Renderiza o buscador inteligente apenas se o JSON carregado não for um objeto de erro */}
+      {dadosManualJson && !dadosManualJson.erro && (
+        <ManualBusca manual={dadosManualJson} />
       )}
-
+      
       <br />
 
       <h3 style={{ color: "#ffe894", marginBottom: "15px" }}>Manuais em PDF:</h3>
