@@ -5,14 +5,11 @@ import "../App.css";
 
 function Home() {
   const [busca, setBusca] = useState("");
-  const [jogos, setJogos] = useState([]);
+  const [jogos, setJogos] = useState(["Alchemist"]);
 
   const navigate = useNavigate();
   const audioRef = useRef(null);
   const [estaTocando, setEstaTocando] = useState(false);
-
-  // Lista padrão para quando estiver na Vercel (onde não há backend Python)
-  const JOGOS_VERCEL = ["Alchemist"];
 
   const alternarMusica = () => {
     if (!audioRef.current) return;
@@ -34,22 +31,18 @@ function Home() {
   };
 
   useEffect(() => {
-    // Verifica se estamos rodando na Vercel ou no computador local
     const isVercel = window.location.hostname.includes("vercel.app");
 
-    if (isVercel) {
-      // Se estiver na Vercel, usa a lista fixa diretamente
-      setJogos(JOGOS_VERCEL);
-    } else {
-      // Se estiver no computador, busca dinamicamente do FastAPI local
+    if (!isVercel) {
       axios
         .get("http://127.0.0.1:8000/jogos")
         .then((response) => {
-          setJogos(response.data);
+          if (response.data && response.data.length > 0) {
+            setJogos(response.data);
+          }
         })
         .catch((error) => {
-          console.log("Erro ao buscar jogos do backend local:", error);
-          setJogos(JOGOS_VERCEL);
+          console.log("Erro ao buscar jogos locais:", error);
         });
     }
 
@@ -70,7 +63,7 @@ function Home() {
             localStorage.setItem("ludoteca_musica_ligada", "true");
           })
           .catch((error) => {
-            console.log("Autoplay bloqueado pelo navegador.", error);
+            console.log("Autoplay bloqueado.", error);
             setEstaTocando(false);
           });
       }
