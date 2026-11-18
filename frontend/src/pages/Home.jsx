@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import api from "../api"; // Importa o configurador inteligente de API
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 
@@ -31,20 +31,20 @@ function Home() {
   };
 
   useEffect(() => {
-    const isVercel = window.location.hostname.includes("vercel.app");
-
-    if (!isVercel) {
-      axios
-        .get("http://127.0.0.1:8000/jogos")
-        .then((response) => {
-          if (response.data && response.data.length > 0) {
-            setJogos(response.data);
-          }
-        })
-        .catch((error) => {
-          console.log("Erro ao buscar jogos locais:", error);
-        });
-    }
+    // Busca os jogos usando a API centralizada (funciona no PC e na Vercel/Render!)
+    api.get("/jogos")
+      .then((response) => {
+        if (response.data && response.data.length > 0) {
+          // Filtra pastas técnicas para mostrar apenas os jogos reais
+          const jogosReais = response.data.filter(
+            (item) => item !== "json" && item !== "textos-limpos"
+          );
+          setJogos(jogosReais);
+        }
+      })
+      .catch((error) => {
+        console.log("Erro ao buscar jogos:", error);
+      });
 
     document.body.style.backgroundImage = "url('/imagens/povo.jpg')";
 
