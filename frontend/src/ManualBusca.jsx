@@ -198,6 +198,7 @@ export default function ManualBusca({ manual }) {
       />
       {resultados.length > 0 && (
         <div
+        
           style={{
             marginTop: "10px",
             background: "rgba(20, 15, 10, 0.95)",
@@ -212,9 +213,23 @@ export default function ManualBusca({ manual }) {
             width: "100%",
             zIndex: 50,
             boxSizing: "border-box",
+            
           }}
+          
         >
+          <input
+  type="text"
+  placeholder="🔍 Pesquisar regras, setup, cards, pontos..."
+  value={busca}
+  onChange={(e) => pesquisar(e.target.value)}
+  onBlur={() => {
+    setTimeout(() => {
+      setResultados([]);
+    }, 200);
+  }}
+/>
           <div
+          
   style={{
     display: "flex",
     justifyContent: "space-between",
@@ -245,25 +260,7 @@ export default function ManualBusca({ manual }) {
     📜 Trechos encontrados ({resultados.length})
   </h4>
 
-  <button
-    onClick={() => {
-      setBusca("");
-      setResultados([]);
-    }}
-    style={{
-      background: "rgba(212,175,55,0.2)",
-      border: "1px solid rgba(212,175,55,0.5)",
-      color: "#fff",
-      width: "28px",
-      height: "28px",
-      borderRadius: "50%",
-      cursor: "pointer",
-      fontWeight: "bold",
-      padding: 0,
-    }}
-  >
-    ✕
-  </button>
+
 </div>
 
   <button
@@ -282,7 +279,7 @@ export default function ManualBusca({ manual }) {
       fontWeight: "bold",
     }}
   >
-    ✕
+    ❌
   </button>
 
 </div>
