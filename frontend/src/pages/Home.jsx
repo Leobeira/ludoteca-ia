@@ -30,19 +30,32 @@ function Home() {
     }
   };
 
-  useEffect(() => {
-    api.get("/jogos")
-      .then((response) => {
-        if (response.data && response.data.length > 0) {
-          const jogosReais = response.data.filter(
-            (item) => item !== "json" && item !== "textos-limpos"
-          );
-          setJogos(jogosReais);
-        }
-      })
-      .catch((error) => {
-        console.log("Erro ao buscar jogos:", error);
-      });
+ useEffect(() => {
+
+  console.log("API URL:", api.defaults.baseURL);
+
+  api.get("/jogos")
+    .then((response) => {
+
+      console.log("RESPOSTA:", response.data);
+
+      if (response.data && response.data.length > 0) {
+
+        const jogosReais = response.data.filter(
+          (item) => item !== "json" && item !== "textos-limpos"
+        );
+
+        setJogos(jogosReais);
+
+      }
+    })
+    .catch((error) => {
+
+      console.log("ERRO API:", error);
+
+    });
+
+}, []);
 
     document.body.style.backgroundImage = "url('/imagens/povo.jpg')";
 
