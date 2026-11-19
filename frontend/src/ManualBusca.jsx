@@ -260,27 +260,30 @@ export default function ManualBusca({ manual }) {
     📜 Trechos encontrados ({resultados.length})
   </h4>
 
-
-</div>
-
   <button
     onClick={() => {
-      setResultados([]);
       setBusca("");
+      setResultados([]);
     }}
     style={{
-      width: "28px",
-      height: "28px",
+      width: "32px",
+      height: "32px",
       borderRadius: "50%",
-      border: "none",
-      cursor: "pointer",
+      border: "1px solid rgba(212,175,55,0.5)",
       background: "rgba(212,175,55,0.2)",
       color: "#fff",
       fontWeight: "bold",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 0,
+      cursor: "pointer",
+      flexShrink: 0,
     }}
   >
     ❌
   </button>
+</div>
 
 </div>
 
