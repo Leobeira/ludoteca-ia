@@ -30,7 +30,7 @@ function Home() {
     }
   };
 
- useEffect(() => {
+  useEffect(() => {
 
   console.log("API URL:", api.defaults.baseURL);
 
@@ -46,8 +46,8 @@ function Home() {
         );
 
         setJogos(jogosReais);
-
       }
+
     })
     .catch((error) => {
 
@@ -55,31 +55,47 @@ function Home() {
 
     });
 
-}, []);
+  document.body.style.backgroundImage = "url('/imagens/povo.jpg')";
 
-    document.body.style.backgroundImage = "url('/imagens/povo.jpg')";
+  if (audioRef.current) {
 
-    if (audioRef.current) {
-      audioRef.current.volume = 0.2;
+    audioRef.current.volume = 0.2;
 
-      const musicaLigada = localStorage.getItem("ludoteca_musica_ligada");
+    const musicaLigada =
+      localStorage.getItem("ludoteca_musica_ligada");
 
-      if (musicaLigada === "false") {
-        audioRef.current.pause();
-        setEstaTocando(false);
-      } else {
-        audioRef.current.play()
-          .then(() => {
-            setEstaTocando(true);
-            localStorage.setItem("ludoteca_musica_ligada", "true");
-          })
-          .catch((error) => {
-            console.log("Autoplay bloqueado.", error);
-            setEstaTocando(false);
-          });
-      }
+    if (musicaLigada === "false") {
+
+      audioRef.current.pause();
+      setEstaTocando(false);
+
+    } else {
+
+      audioRef.current.play()
+        .then(() => {
+
+          setEstaTocando(true);
+
+          localStorage.setItem(
+            "ludoteca_musica_ligada",
+            "true"
+          );
+
+        })
+        .catch((error) => {
+
+          console.log(
+            "Autoplay bloqueado.",
+            error
+          );
+
+          setEstaTocando(false);
+
+        });
     }
-  }, []);
+  }
+
+}, []);
 
   const jogosFiltrados = jogos.filter((jogo) =>
     jogo
