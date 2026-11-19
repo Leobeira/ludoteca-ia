@@ -7,13 +7,19 @@ import json
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-PASTA_MANUAIS = "../manuais"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+PASTA_MANUAIS = os.path.join(
+    BASE_DIR,
+    "..",
+    "manuais"
+)
 
 
 @app.get("/")

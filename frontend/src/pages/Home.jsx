@@ -107,7 +107,7 @@ function Home() {
           style={{ cursor: "pointer" }}
           title="Voltar para a página inicial"
         >
-          Ludoteca IA
+          Ludoteca IA VERSAO TESTE 
         </span>
       </h1>
 
