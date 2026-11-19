@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 // Dicionário de termos comuns de jogos de tabuleiro (PT <-> EN)
 const DICIONARIO_BG = {
@@ -46,6 +46,39 @@ export default function ManualBusca({ manual }) {
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState([]);
   const [secaoAtiva, setSecaoAtiva] = useState(null);
+
+  const resultadosRef = useRef(null);
+
+  useEffect(() => {
+
+  const handleClickOutside = (event) => {
+
+    if (
+      resultadosRef.current &&
+      !resultadosRef.current.contains(event.target)
+    ) {
+
+      setResultados([]);
+
+    }
+
+  };
+
+  document.addEventListener(
+    "mousedown",
+    handleClickOutside
+  );
+
+  return () => {
+
+    document.removeEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+  };
+
+}, []);
 
   const expandirTermos = (termoBruto) => {
     const limpo = normalizar(termoBruto.trim());
@@ -198,6 +231,7 @@ export default function ManualBusca({ manual }) {
       />
       {resultados.length > 0 && (
         <div
+          ref={resultadosRef}
         
           style={{
             marginTop: "10px",
@@ -217,17 +251,7 @@ export default function ManualBusca({ manual }) {
           }}
           
         >
-          <input
-  type="text"
-  placeholder="🔍 Pesquisar regras, setup, cards, pontos..."
-  value={busca}
-  onChange={(e) => pesquisar(e.target.value)}
-  onBlur={() => {
-    setTimeout(() => {
-      setResultados([]);
-    }, 200);
-  }}
-/>
+          
           <div
           
   style={{
