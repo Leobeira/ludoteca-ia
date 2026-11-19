@@ -225,6 +225,16 @@ export default function ManualBusca({ manual }) {
   }}
 >
 
+  <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottom: "1px solid rgba(212, 175, 55, 0.2)",
+    paddingBottom: "6px",
+    marginBottom: "10px",
+  }}
+>
   <h4
     style={{
       color: "#ffe894",
@@ -234,6 +244,27 @@ export default function ManualBusca({ manual }) {
   >
     📜 Trechos encontrados ({resultados.length})
   </h4>
+
+  <button
+    onClick={() => {
+      setBusca("");
+      setResultados([]);
+    }}
+    style={{
+      background: "rgba(212,175,55,0.2)",
+      border: "1px solid rgba(212,175,55,0.5)",
+      color: "#fff",
+      width: "28px",
+      height: "28px",
+      borderRadius: "50%",
+      cursor: "pointer",
+      fontWeight: "bold",
+      padding: 0,
+    }}
+  >
+    ✕
+  </button>
+</div>
 
   <button
     onClick={() => {
