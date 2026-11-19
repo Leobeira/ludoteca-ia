@@ -46,6 +46,27 @@ export default function ManualBusca({ manual }) {
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState([]);
   const [secaoAtiva, setSecaoAtiva] = useState(null);
+  const containerRef = useRef(null);
+
+  const fecharBusca = () => {
+    setBusca("");
+    setResultados([]);
+  };
+
+  useEffect(() => {
+    if (resultados.length === 0) return;
+
+    const handleClickFora = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        fecharBusca();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickFora);
+    return () => {
+      document.removeEventListener("mousedown", handleClickFora);
+    };
+  }, [resultados.length]);
 
   const expandirTermos = (termoBruto) => {
     const limpo = normalizar(termoBruto.trim());
@@ -161,18 +182,18 @@ export default function ManualBusca({ manual }) {
 
   return (
     <div
+      ref={containerRef}
       style={{
         width: "100%",
         maxWidth: "600px",
         margin: "0 auto 25px auto",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center", // <--- Centraliza perfeitamente o input no meio
+        alignItems: "center",
         fontFamily: "inherit",
         position: "relative",
       }}
     >
-      {/* Mantemos a largura de 100% no input para ele ocupar o espaço do container centralizado */}
       <input
         type="text"
         placeholder="🔍 Pesquisar regras, setup, cards, pontos..."
@@ -190,15 +211,15 @@ export default function ManualBusca({ manual }) {
           outline: "none",
           boxShadow: "0 8px 16px rgba(0,0,0,0.4)",
           boxSizing: "border-box",
-          textAlign: "left", // Mantém o texto digitado alinhado à esquerda
+          textAlign: "left",
           transition: "all 0.3s ease",
         }}
         onFocus={(e) => (e.target.style.borderColor = "#ffe894")}
         onBlur={(e) => (e.target.style.borderColor = "rgba(212, 175, 55, 0.7)")}
       />
+
       {resultados.length > 0 && (
         <div
-        
           style={{
             marginTop: "10px",
             background: "rgba(20, 15, 10, 0.95)",
@@ -210,86 +231,54 @@ export default function ManualBusca({ manual }) {
             maxHeight: "320px",
             overflowY: "auto",
             position: "absolute",
+            top: "100%",
             width: "100%",
             zIndex: 50,
             boxSizing: "border-box",
-            
           }}
-
-          onMouseLeave={() => {
-          setResultados([]);
-          }}
-          
         >
-          <input
-  type="text"
-  placeholder="🔍 Pesquisar regras, setup, cards, pontos..."
-  value={busca}
-  onChange={(e) => pesquisar(e.target.value)}
-  onBlur={() => {
-    setTimeout(() => {
-      setResultados([]);
-    }, 200);
-  }}
-/>
           <div
-          
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "10px",
-    borderBottom: "1px solid rgba(212, 175, 55, 0.2)",
-    paddingBottom: "6px",
-  }}
->
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: "1px solid rgba(212, 175, 55, 0.2)",
+              paddingBottom: "6px",
+              marginBottom: "10px",
+            }}
+          >
+            <h4
+              style={{
+                color: "#ffe894",
+                margin: 0,
+                fontSize: "1rem",
+              }}
+            >
+              📜 Trechos encontrados ({resultados.length})
+            </h4>
 
-  <div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderBottom: "1px solid rgba(212, 175, 55, 0.2)",
-    paddingBottom: "6px",
-    marginBottom: "10px",
-  }}
->
-  <h4
-    style={{
-      color: "#ffe894",
-      margin: 0,
-      fontSize: "1rem",
-    }}
-  >
-    📜 Trechos encontrados ({resultados.length})
-  </h4>
-
-  <button
-    onClick={() => {
-      setBusca("");
-      setResultados([]);
-    }}
-    style={{
-      width: "32px",
-      height: "32px",
-      borderRadius: "50%",
-      border: "1px solid rgba(212,175,55,0.5)",
-      background: "rgba(212,175,55,0.2)",
-      color: "#fff",
-      fontWeight: "bold",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: 0,
-      cursor: "pointer",
-      flexShrink: 0,
-    }}
-  >
-    ❌
-  </button>
-</div>
-
-</div>
+            <button
+              type="button"
+              onClick={fecharBusca}
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                border: "1px solid rgba(212,175,55,0.5)",
+                background: "rgba(212,175,55,0.2)",
+                color: "#fff",
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
+            >
+              ❌
+            </button>
+          </div>
 
           {resultados.map((item) => (
             <div
@@ -332,6 +321,7 @@ export default function ManualBusca({ manual }) {
 
       {secaoAtiva && (
         <div
+          onClick={() => setSecaoAtiva(null)}
           style={{
             position: "fixed",
             top: 0,
@@ -349,6 +339,7 @@ export default function ManualBusca({ manual }) {
           }}
         >
           <div
+            onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: "#1a120b",
               border: "2px solid #d4af37",
@@ -377,6 +368,7 @@ export default function ManualBusca({ manual }) {
                 📖 {secaoAtiva.titulo}
               </h3>
               <button
+                type="button"
                 onClick={() => setSecaoAtiva(null)}
                 style={{
                   background: "rgba(170, 59, 255, 0.2)",
@@ -413,6 +405,7 @@ export default function ManualBusca({ manual }) {
 
             <div style={{ marginTop: "20px", textAlign: "right" }}>
               <button
+                type="button"
                 onClick={() => setSecaoAtiva(null)}
                 style={{
                   backgroundColor: "#d4af37",
