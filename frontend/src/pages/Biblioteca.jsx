@@ -1,3 +1,4 @@
+import { descricoes } from "../data/descricoes";
 import { useEffect, useState, useRef } from "react";
 import api, { API_URL } from "../api";
 import { useParams, useNavigate } from "react-router-dom";
@@ -112,9 +113,15 @@ function Biblioteca() {
         </button>
       </div>
 
-      <h1 className="titulo-jogo"> 
-        ⚔️ {nomeJogo.replaceAll("_", " ")} 🛡️
+      <h1 className="titulo-jogo">
+  ⚔️ {nomeJogo.replaceAll("_", " ")} 🛡️
       </h1>
+
+      {descricoes[nomeJogo] && (
+  <p className="descricao-jogo">
+    {descricoes[nomeJogo]}
+  </p>
+      )}
 
       <button 
         onClick={() => navigate("/home")}

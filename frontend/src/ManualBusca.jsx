@@ -214,17 +214,47 @@ export default function ManualBusca({ manual }) {
             boxSizing: "border-box",
           }}
         >
-          <h4
-            style={{
-              color: "#ffe894",
-              margin: "0 0 10px 0",
-              fontSize: "1rem",
-              borderBottom: "1px solid rgba(212, 175, 55, 0.2)",
-              paddingBottom: "6px",
-            }}
-          >
-            📜 Trechos encontrados ({resultados.length}):
-          </h4>
+          <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "10px",
+    borderBottom: "1px solid rgba(212, 175, 55, 0.2)",
+    paddingBottom: "6px",
+  }}
+>
+
+  <h4
+    style={{
+      color: "#ffe894",
+      margin: 0,
+      fontSize: "1rem",
+    }}
+  >
+    📜 Trechos encontrados ({resultados.length})
+  </h4>
+
+  <button
+    onClick={() => {
+      setResultados([]);
+      setBusca("");
+    }}
+    style={{
+      width: "28px",
+      height: "28px",
+      borderRadius: "50%",
+      border: "none",
+      cursor: "pointer",
+      background: "rgba(212,175,55,0.2)",
+      color: "#fff",
+      fontWeight: "bold",
+    }}
+  >
+    ✕
+  </button>
+
+</div>
 
           {resultados.map((item) => (
             <div
