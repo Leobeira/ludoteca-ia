@@ -5,7 +5,7 @@ import "../App.css";
 
 function Home() {
   const [busca, setBusca] = useState("");
-  const [jogos, setJogos] = useState(["Alchemist"]);
+  const [jogos, setJogos] = useState([]);
 
   const navigate = useNavigate();
   const audioRef = useRef(null);
